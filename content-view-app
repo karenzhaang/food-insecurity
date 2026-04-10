@@ -1,0 +1,1738 @@
+import SwiftUI
+import Combine
+
+extension Color {
+    static let inkBlack    = Color(red: 0.09, green: 0.08, blue: 0.07)
+    static let warmPaper   = Color(red: 0.95, green: 0.92, blue: 0.86)
+    static let agedPaper   = Color(red: 0.89, green: 0.85, blue: 0.77)
+    static let newsprint   = Color(red: 0.82, green: 0.79, blue: 0.72)
+    static let redInk      = Color(red: 0.78, green: 0.15, blue: 0.10)
+    static let blueInk     = Color(red: 0.14, green: 0.32, blue: 0.62)
+    static let greenStamp  = Color(red: 0.18, green: 0.45, blue: 0.28)
+    static let amberWarn   = Color(red: 0.82, green: 0.52, blue: 0.08)
+    static let fadedInk    = Color(red: 0.35, green: 0.32, blue: 0.28)
+}
+
+
+// Wheat stalk
+struct WheatIcon: View {
+    var color: Color = .inkBlack
+    var size: CGFloat = 32
+    var body: some View {
+        Canvas { ctx, sz in
+            let s = sz.width / 32
+            // stem
+            var stem = Path()
+            stem.move(to: CGPoint(x: 16*s, y: 30*s))
+            stem.addCurve(to: CGPoint(x: 16*s, y: 4*s),
+                          control1: CGPoint(x: 13*s, y: 22*s),
+                          control2: CGPoint(x: 19*s, y: 12*s))
+            ctx.stroke(stem, with: .color(color), style: StrokeStyle(lineWidth: 1.8*s, lineCap: .round))
+            // grain clusters
+            for i in 0..<4 {
+                let y = CGFloat(8 + i * 5) * s
+                var left = Path()
+                left.move(to: CGPoint(x: 16*s, y: y))
+                left.addQuadCurve(to: CGPoint(x: 9*s, y: y - 2*s), control: CGPoint(x: 12*s, y: y - 4*s))
+                ctx.stroke(left, with: .color(color), style: StrokeStyle(lineWidth: 1.5*s, lineCap: .round))
+                var right = Path()
+                right.move(to: CGPoint(x: 16*s, y: y))
+                right.addQuadCurve(to: CGPoint(x: 23*s, y: y - 2*s), control: CGPoint(x: 20*s, y: y - 4*s))
+                ctx.stroke(right, with: .color(color), style: StrokeStyle(lineWidth: 1.5*s, lineCap: .round))
+            }
+        }
+        .frame(width: size, height: size)
+    }
+}
+
+// Child figure (simplified)
+struct ChildFigureIcon: View {
+    var color: Color = .inkBlack
+    var size: CGFloat = 32
+    var body: some View {
+        Canvas { ctx, sz in
+            let s = sz.width / 32
+            // head
+            var head = Path()
+            head.addEllipse(in: CGRect(x: 11*s, y: 1*s, width: 10*s, height: 10*s))
+            ctx.stroke(head, with: .color(color), style: StrokeStyle(lineWidth: 1.6*s))
+            // body
+            var body_ = Path()
+            body_.move(to: CGPoint(x: 16*s, y: 11*s))
+            body_.addLine(to: CGPoint(x: 16*s, y: 22*s))
+            ctx.stroke(body_, with: .color(color), style: StrokeStyle(lineWidth: 1.6*s, lineCap: .round))
+            // arms
+            var arms = Path()
+            arms.move(to: CGPoint(x: 8*s, y: 16*s))
+            arms.addLine(to: CGPoint(x: 24*s, y: 16*s))
+            ctx.stroke(arms, with: .color(color), style: StrokeStyle(lineWidth: 1.6*s, lineCap: .round))
+            // legs
+            var legL = Path()
+            legL.move(to: CGPoint(x: 16*s, y: 22*s))
+            legL.addLine(to: CGPoint(x: 10*s, y: 31*s))
+            ctx.stroke(legL, with: .color(color), style: StrokeStyle(lineWidth: 1.6*s, lineCap: .round))
+            var legR = Path()
+            legR.move(to: CGPoint(x: 16*s, y: 22*s))
+            legR.addLine(to: CGPoint(x: 22*s, y: 31*s))
+            ctx.stroke(legR, with: .color(color), style: StrokeStyle(lineWidth: 1.6*s, lineCap: .round))
+        }
+        .frame(width: size, height: size)
+    }
+}
+
+// Trash/waste bin
+struct WasteIcon: View {
+    var color: Color = .inkBlack
+    var size: CGFloat = 32
+    var body: some View {
+        Canvas { ctx, sz in
+            let s = sz.width / 32
+            // bin body
+            var body_ = Path()
+            body_.move(to: CGPoint(x: 7*s, y: 9*s))
+            body_.addLine(to: CGPoint(x: 9*s, y: 30*s))
+            body_.addLine(to: CGPoint(x: 23*s, y: 30*s))
+            body_.addLine(to: CGPoint(x: 25*s, y: 9*s))
+            body_.closeSubpath()
+            ctx.stroke(body_, with: .color(color), style: StrokeStyle(lineWidth: 1.7*s, lineJoin: .round))
+            // lid
+            var lid = Path()
+            lid.move(to: CGPoint(x: 5*s, y: 9*s))
+            lid.addLine(to: CGPoint(x: 27*s, y: 9*s))
+            ctx.stroke(lid, with: .color(color), style: StrokeStyle(lineWidth: 1.7*s, lineCap: .round))
+            // handle
+            var handle = Path()
+            handle.move(to: CGPoint(x: 13*s, y: 9*s))
+            handle.addLine(to: CGPoint(x: 13*s, y: 5*s))
+            handle.addLine(to: CGPoint(x: 19*s, y: 5*s))
+            handle.addLine(to: CGPoint(x: 19*s, y: 9*s))
+            ctx.stroke(handle, with: .color(color), style: StrokeStyle(lineWidth: 1.7*s, lineJoin: .round))
+            // lines inside
+            for x in [13, 16, 19] {
+                var line = Path()
+                line.move(to: CGPoint(x: CGFloat(x)*s, y: 13*s))
+                line.addLine(to: CGPoint(x: CGFloat(x)*s, y: 26*s))
+                ctx.stroke(line, with: .color(color), style: StrokeStyle(lineWidth: 1.2*s, lineCap: .round))
+            }
+        }
+        .frame(width: size, height: size)
+    }
+}
+
+// Dollar sign in circle
+struct DollarIcon: View {
+    var color: Color = .inkBlack
+    var size: CGFloat = 32
+    var body: some View {
+        Canvas { ctx, sz in
+            let s = sz.width / 32
+            var circle = Path()
+            circle.addEllipse(in: CGRect(x: 2*s, y: 2*s, width: 28*s, height: 28*s))
+            ctx.stroke(circle, with: .color(color), style: StrokeStyle(lineWidth: 1.7*s))
+            var line = Path()
+            line.move(to: CGPoint(x: 16*s, y: 7*s))
+            line.addLine(to: CGPoint(x: 16*s, y: 25*s))
+            ctx.stroke(line, with: .color(color), style: StrokeStyle(lineWidth: 1.5*s, lineCap: .round))
+            // S curve
+            var s_ = Path()
+            s_.move(to: CGPoint(x: 21*s, y: 11*s))
+            s_.addCurve(to: CGPoint(x: 11*s, y: 16*s),
+                        control1: CGPoint(x: 21*s, y: 14*s),
+                        control2: CGPoint(x: 11*s, y: 14*s))
+            s_.addCurve(to: CGPoint(x: 21*s, y: 21*s),
+                        control1: CGPoint(x: 11*s, y: 18*s),
+                        control2: CGPoint(x: 21*s, y: 18*s))
+            ctx.stroke(s_, with: .color(color), style: StrokeStyle(lineWidth: 1.5*s, lineCap: .round))
+        }
+        .frame(width: size, height: size)
+    }
+}
+
+// House/city
+struct HouseIcon: View {
+    var color: Color = .inkBlack
+    var size: CGFloat = 32
+    var body: some View {
+        Canvas { ctx, sz in
+            let s = sz.width / 32
+            // main house
+            var roof = Path()
+            roof.move(to: CGPoint(x: 4*s, y: 16*s))
+            roof.addLine(to: CGPoint(x: 16*s, y: 5*s))
+            roof.addLine(to: CGPoint(x: 28*s, y: 16*s))
+            ctx.stroke(roof, with: .color(color), style: StrokeStyle(lineWidth: 1.7*s, lineJoin: .round))
+            var walls = Path()
+            walls.addRect(CGRect(x: 7*s, y: 15*s, width: 18*s, height: 16*s))
+            ctx.stroke(walls, with: .color(color), style: StrokeStyle(lineWidth: 1.7*s))
+            // door
+            var door = Path()
+            door.addRect(CGRect(x: 13*s, y: 22*s, width: 6*s, height: 9*s))
+            ctx.stroke(door, with: .color(color), style: StrokeStyle(lineWidth: 1.3*s))
+            // window
+            var win = Path()
+            win.addRect(CGRect(x: 10*s, y: 18*s, width: 4*s, height: 4*s))
+            ctx.stroke(win, with: .color(color), style: StrokeStyle(lineWidth: 1.3*s))
+            var win2 = Path()
+            win2.addRect(CGRect(x: 18*s, y: 18*s, width: 4*s, height: 4*s))
+            ctx.stroke(win2, with: .color(color), style: StrokeStyle(lineWidth: 1.3*s))
+        }
+        .frame(width: size, height: size)
+    }
+}
+
+// Thermometer / climate
+struct ThermometerIcon: View {
+    var color: Color = .inkBlack
+    var size: CGFloat = 32
+    var body: some View {
+        Canvas { ctx, sz in
+            let s = sz.width / 32
+            var tube = Path()
+            tube.move(to: CGPoint(x: 16*s, y: 5*s))
+            tube.addLine(to: CGPoint(x: 16*s, y: 22*s))
+            ctx.stroke(tube, with: .color(color), style: StrokeStyle(lineWidth: 5*s, lineCap: .round))
+            ctx.stroke(tube, with: .color(.warmPaper), style: StrokeStyle(lineWidth: 2.5*s, lineCap: .round))
+            // fill
+            var fill = Path()
+            fill.move(to: CGPoint(x: 16*s, y: 22*s))
+            fill.addLine(to: CGPoint(x: 16*s, y: 14*s))
+            ctx.stroke(fill, with: .color(color), style: StrokeStyle(lineWidth: 2.5*s, lineCap: .round))
+            // bulb
+            var bulb = Path()
+            bulb.addEllipse(in: CGRect(x: 11*s, y: 22*s, width: 10*s, height: 10*s))
+            ctx.fill(bulb, with: .color(color))
+            // tick marks
+            for i in 0..<5 {
+                let y = CGFloat(6 + i*3) * s
+                var tick = Path()
+                tick.move(to: CGPoint(x: 18*s, y: y))
+                tick.addLine(to: CGPoint(x: i % 2 == 0 ? 22*s : 20*s, y: y))
+                ctx.stroke(tick, with: .color(color), style: StrokeStyle(lineWidth: 1.2*s, lineCap: .round))
+            }
+        }
+        .frame(width: size, height: size)
+    }
+}
+
+// Open book
+struct BookIcon: View {
+    var color: Color = .inkBlack
+    var size: CGFloat = 32
+    var body: some View {
+        Canvas { ctx, sz in
+            let s = sz.width / 32
+            // spine
+            var spine = Path()
+            spine.move(to: CGPoint(x: 16*s, y: 7*s))
+            spine.addLine(to: CGPoint(x: 16*s, y: 28*s))
+            ctx.stroke(spine, with: .color(color), style: StrokeStyle(lineWidth: 1.5*s))
+            // left page
+            var left = Path()
+            left.move(to: CGPoint(x: 16*s, y: 7*s))
+            left.addCurve(to: CGPoint(x: 3*s, y: 9*s), control1: CGPoint(x: 10*s, y: 5*s), control2: CGPoint(x: 3*s, y: 7*s))
+            left.addLine(to: CGPoint(x: 3*s, y: 27*s))
+            left.addCurve(to: CGPoint(x: 16*s, y: 28*s), control1: CGPoint(x: 3*s, y: 28*s), control2: CGPoint(x: 10*s, y: 28*s))
+            ctx.stroke(left, with: .color(color), style: StrokeStyle(lineWidth: 1.6*s, lineJoin: .round))
+            // right page
+            var right = Path()
+            right.move(to: CGPoint(x: 16*s, y: 7*s))
+            right.addCurve(to: CGPoint(x: 29*s, y: 9*s), control1: CGPoint(x: 22*s, y: 5*s), control2: CGPoint(x: 29*s, y: 7*s))
+            right.addLine(to: CGPoint(x: 29*s, y: 27*s))
+            right.addCurve(to: CGPoint(x: 16*s, y: 28*s), control1: CGPoint(x: 29*s, y: 28*s), control2: CGPoint(x: 22*s, y: 28*s))
+            ctx.stroke(right, with: .color(color), style: StrokeStyle(lineWidth: 1.6*s, lineJoin: .round))
+            // text lines on left
+            for y in [13, 16, 19, 22] {
+                var line = Path()
+                line.move(to: CGPoint(x: 6*s, y: CGFloat(y)*s))
+                line.addLine(to: CGPoint(x: 13*s, y: CGFloat(y)*s))
+                ctx.stroke(line, with: .color(color.opacity(0.5)), style: StrokeStyle(lineWidth: 1.2*s, lineCap: .round))
+            }
+        }
+        .frame(width: size, height: size)
+    }
+}
+
+// Globe / earth
+struct GlobeIcon: View {
+    var color: Color = .inkBlack
+    var size: CGFloat = 32
+    var body: some View {
+        Canvas { ctx, sz in
+            let s = sz.width / 32
+            var circle = Path()
+            circle.addEllipse(in: CGRect(x: 2*s, y: 2*s, width: 28*s, height: 28*s))
+            ctx.stroke(circle, with: .color(color), style: StrokeStyle(lineWidth: 1.7*s))
+            var mid = Path()
+            mid.move(to: CGPoint(x: 2*s, y: 16*s)); mid.addLine(to: CGPoint(x: 30*s, y: 16*s))
+            ctx.stroke(mid, with: .color(color), style: StrokeStyle(lineWidth: 1.2*s))
+            // meridians
+            var m1 = Path()
+            m1.addEllipse(in: CGRect(x: 8*s, y: 2*s, width: 16*s, height: 28*s))
+            ctx.stroke(m1, with: .color(color), style: StrokeStyle(lineWidth: 1.2*s))
+            var m2 = Path()
+            m2.move(to: CGPoint(x: 16*s, y: 2*s)); m2.addLine(to: CGPoint(x: 16*s, y: 30*s))
+            ctx.stroke(m2, with: .color(color), style: StrokeStyle(lineWidth: 1.2*s))
+        }
+        .frame(width: size, height: size)
+    }
+}
+
+// Bread loaf
+struct BreadIcon: View {
+    var color: Color = .inkBlack
+    var size: CGFloat = 32
+    var body: some View {
+        Canvas { ctx, sz in
+            let s = sz.width / 32
+            var loaf = Path()
+            loaf.move(to: CGPoint(x: 4*s, y: 20*s))
+            loaf.addCurve(to: CGPoint(x: 28*s, y: 20*s),
+                          control1: CGPoint(x: 4*s, y: 6*s),
+                          control2: CGPoint(x: 28*s, y: 6*s))
+            loaf.addLine(to: CGPoint(x: 28*s, y: 28*s))
+            loaf.addLine(to: CGPoint(x: 4*s, y: 28*s))
+            loaf.closeSubpath()
+            ctx.stroke(loaf, with: .color(color), style: StrokeStyle(lineWidth: 1.7*s, lineJoin: .round))
+            // score lines
+            for x in [12, 16, 20] {
+                var score = Path()
+                score.move(to: CGPoint(x: CGFloat(x)*s, y: 14*s))
+                score.addLine(to: CGPoint(x: CGFloat(x)*s, y: 28*s))
+                ctx.stroke(score, with: .color(color.opacity(0.35)), style: StrokeStyle(lineWidth: 1*s, lineCap: .round))
+            }
+        }
+        .frame(width: size, height: size)
+    }
+}
+
+// Milk bottle
+struct MilkIcon: View {
+    var color: Color = .inkBlack
+    var size: CGFloat = 32
+    var body: some View {
+        Canvas { ctx, sz in
+            let s = sz.width / 32
+            var bottle = Path()
+            bottle.move(to: CGPoint(x: 12*s, y: 2*s))
+            bottle.addLine(to: CGPoint(x: 12*s, y: 8*s))
+            bottle.addCurve(to: CGPoint(x: 6*s, y: 16*s),
+                            control1: CGPoint(x: 8*s, y: 10*s),
+                            control2: CGPoint(x: 6*s, y: 12*s))
+            bottle.addLine(to: CGPoint(x: 6*s, y: 28*s))
+            bottle.addLine(to: CGPoint(x: 26*s, y: 28*s))
+            bottle.addLine(to: CGPoint(x: 26*s, y: 16*s))
+            bottle.addCurve(to: CGPoint(x: 20*s, y: 8*s),
+                            control1: CGPoint(x: 26*s, y: 12*s),
+                            control2: CGPoint(x: 24*s, y: 10*s))
+            bottle.addLine(to: CGPoint(x: 20*s, y: 2*s))
+            bottle.closeSubpath()
+            ctx.stroke(bottle, with: .color(color), style: StrokeStyle(lineWidth: 1.7*s, lineJoin: .round))
+            var cap = Path()
+            cap.addRect(CGRect(x: 11*s, y: 1*s, width: 10*s, height: 2*s))
+            ctx.fill(cap, with: .color(color))
+            // fill level
+            var fill = Path()
+            fill.move(to: CGPoint(x: 7*s, y: 20*s))
+            fill.addLine(to: CGPoint(x: 25*s, y: 20*s))
+            ctx.stroke(fill, with: .color(color.opacity(0.3)), style: StrokeStyle(lineWidth: 1.2*s))
+        }
+        .frame(width: size, height: size)
+    }
+}
+
+// Leaf / vegetable
+struct LeafIcon: View {
+    var color: Color = .inkBlack
+    var size: CGFloat = 32
+    var body: some View {
+        Canvas { ctx, sz in
+            let s = sz.width / 32
+            var leaf = Path()
+            leaf.move(to: CGPoint(x: 16*s, y: 30*s))
+            leaf.addCurve(to: CGPoint(x: 4*s, y: 12*s),
+                          control1: CGPoint(x: 4*s, y: 26*s),
+                          control2: CGPoint(x: 4*s, y: 12*s))
+            leaf.addCurve(to: CGPoint(x: 16*s, y: 4*s),
+                          control1: CGPoint(x: 4*s, y: 6*s),
+                          control2: CGPoint(x: 10*s, y: 4*s))
+            leaf.addCurve(to: CGPoint(x: 28*s, y: 12*s),
+                          control1: CGPoint(x: 22*s, y: 4*s),
+                          control2: CGPoint(x: 28*s, y: 6*s))
+            leaf.addCurve(to: CGPoint(x: 16*s, y: 30*s),
+                          control1: CGPoint(x: 28*s, y: 12*s),
+                          control2: CGPoint(x: 28*s, y: 26*s))
+            ctx.stroke(leaf, with: .color(color), style: StrokeStyle(lineWidth: 1.7*s))
+            // vein
+            var vein = Path()
+            vein.move(to: CGPoint(x: 16*s, y: 30*s))
+            vein.addLine(to: CGPoint(x: 16*s, y: 6*s))
+            ctx.stroke(vein, with: .color(color), style: StrokeStyle(lineWidth: 1.2*s))
+            for i in 0..<4 {
+                let y = CGFloat(10 + i * 5) * s
+                var vL = Path()
+                vL.move(to: CGPoint(x: 16*s, y: y))
+                vL.addLine(to: CGPoint(x: 10*s, y: y + 3*s))
+                var vR = Path()
+                vR.move(to: CGPoint(x: 16*s, y: y))
+                vR.addLine(to: CGPoint(x: 22*s, y: y + 3*s))
+                ctx.stroke(vL, with: .color(color.opacity(0.45)), style: StrokeStyle(lineWidth: 1*s))
+                ctx.stroke(vR, with: .color(color.opacity(0.45)), style: StrokeStyle(lineWidth: 1*s))
+            }
+        }
+        .frame(width: size, height: size)
+    }
+}
+
+// Apple
+struct AppleIcon: View {
+    var color: Color = .inkBlack
+    var size: CGFloat = 32
+    var body: some View {
+        Canvas { ctx, sz in
+            let s = sz.width / 32
+            var apple = Path()
+            apple.move(to: CGPoint(x: 16*s, y: 10*s))
+            apple.addCurve(to: CGPoint(x: 6*s, y: 18*s),
+                           control1: CGPoint(x: 6*s, y: 10*s),
+                           control2: CGPoint(x: 6*s, y: 14*s))
+            apple.addCurve(to: CGPoint(x: 16*s, y: 30*s),
+                           control1: CGPoint(x: 6*s, y: 26*s),
+                           control2: CGPoint(x: 10*s, y: 30*s))
+            apple.addCurve(to: CGPoint(x: 26*s, y: 30*s),
+                           control1: CGPoint(x: 22*s, y: 30*s),
+                           control2: CGPoint(x: 26*s, y: 30*s))
+            apple.addCurve(to: CGPoint(x: 26*s, y: 18*s),
+                           control1: CGPoint(x: 26*s, y: 26*s),
+                           control2: CGPoint(x: 26*s, y: 22*s))
+            apple.addCurve(to: CGPoint(x: 16*s, y: 10*s),
+                           control1: CGPoint(x: 26*s, y: 14*s),
+                           control2: CGPoint(x: 26*s, y: 10*s))
+            ctx.stroke(apple, with: .color(color), style: StrokeStyle(lineWidth: 1.7*s))
+            // stem
+            var stem = Path()
+            stem.move(to: CGPoint(x: 16*s, y: 10*s))
+            stem.addCurve(to: CGPoint(x: 19*s, y: 4*s),
+                          control1: CGPoint(x: 16*s, y: 7*s),
+                          control2: CGPoint(x: 20*s, y: 5*s))
+            ctx.stroke(stem, with: .color(color), style: StrokeStyle(lineWidth: 1.5*s, lineCap: .round))
+        }
+        .frame(width: size, height: size)
+    }
+}
+
+// Water drop
+struct WaterIcon: View {
+    var color: Color = .inkBlack
+    var size: CGFloat = 32
+    var body: some View {
+        Canvas { ctx, sz in
+            let s = sz.width / 32
+            var drop = Path()
+            drop.move(to: CGPoint(x: 16*s, y: 3*s))
+            drop.addCurve(to: CGPoint(x: 26*s, y: 20*s),
+                          control1: CGPoint(x: 22*s, y: 8*s),
+                          control2: CGPoint(x: 26*s, y: 14*s))
+            drop.addCurve(to: CGPoint(x: 16*s, y: 30*s),
+                          control1: CGPoint(x: 26*s, y: 26*s),
+                          control2: CGPoint(x: 22*s, y: 30*s))
+            drop.addCurve(to: CGPoint(x: 6*s, y: 20*s),
+                          control1: CGPoint(x: 10*s, y: 30*s),
+                          control2: CGPoint(x: 6*s, y: 26*s))
+            drop.addCurve(to: CGPoint(x: 16*s, y: 3*s),
+                          control1: CGPoint(x: 6*s, y: 14*s),
+                          control2: CGPoint(x: 10*s, y: 8*s))
+            ctx.stroke(drop, with: .color(color), style: StrokeStyle(lineWidth: 1.7*s))
+            // shine
+            var shine = Path()
+            shine.addEllipse(in: CGRect(x: 11*s, y: 18*s, width: 4*s, height: 3*s))
+            ctx.stroke(shine, with: .color(color.opacity(0.35)), style: StrokeStyle(lineWidth: 1*s))
+        }
+        .frame(width: size, height: size)
+    }
+}
+
+// Scales icon
+struct ScalesIcon: View {
+    var color: Color = .inkBlack
+    var size: CGFloat = 32
+    var body: some View {
+        Canvas { ctx, sz in
+            let s = sz.width / 32
+            var beam = Path()
+            beam.move(to: CGPoint(x: 4*s, y: 12*s)); beam.addLine(to: CGPoint(x: 28*s, y: 12*s))
+            ctx.stroke(beam, with: .color(color), style: StrokeStyle(lineWidth: 1.7*s, lineCap: .round))
+            var post = Path()
+            post.move(to: CGPoint(x: 16*s, y: 4*s)); post.addLine(to: CGPoint(x: 16*s, y: 30*s))
+            ctx.stroke(post, with: .color(color), style: StrokeStyle(lineWidth: 1.5*s))
+            var base = Path()
+            base.move(to: CGPoint(x: 10*s, y: 30*s)); base.addLine(to: CGPoint(x: 22*s, y: 30*s))
+            ctx.stroke(base, with: .color(color), style: StrokeStyle(lineWidth: 1.7*s, lineCap: .round))
+            // pans
+            let panPts: [(CGFloat, CGFloat)] = [(4, 12), (28, 12)]
+            for (px, py) in panPts {
+                var pan = Path()
+                pan.move(to: CGPoint(x: (px-5)*s, y: py*s))
+                pan.addQuadCurve(to: CGPoint(x: (px+5)*s, y: py*s),
+                                 control: CGPoint(x: px*s, y: (py+7)*s))
+                ctx.stroke(pan, with: .color(color), style: StrokeStyle(lineWidth: 1.5*s, lineCap: .round))
+            }
+        }
+        .frame(width: size, height: size)
+    }
+}
+
+// MARK: - Haptics
+
+struct Haptics {
+    static func impact(_ style: UIImpactFeedbackGenerator.FeedbackStyle = .medium) {
+        UIImpactFeedbackGenerator(style: style).impactOccurred()
+    }
+    static func notification(_ type: UINotificationFeedbackGenerator.FeedbackType) {
+        UINotificationFeedbackGenerator().notificationOccurred(type)
+    }
+    static func selection() {
+        UISelectionFeedbackGenerator().selectionChanged()
+    }
+}
+
+// MARK: - Models
+
+struct StoryCard: Identifiable {
+    let id = UUID()
+    let icon: AnyView
+    let headline: String
+    let body: String
+    let accentColor: Color
+    let source: String
+    let stampText: String
+}
+
+struct RegionData: Identifiable {
+    let id = UUID()
+    let name: String
+    let flag: String
+    let percent: Double
+    let millions: Double
+    let color: Color
+}
+
+struct BudgetItem: Identifiable {
+    let id = UUID()
+    let icon: AnyView
+    let name: String
+    let minimumCost: Double
+    let description: String
+}
+
+// MARK: - Live Counter ViewModel
+
+@MainActor
+class HungerCounterViewModel: ObservableObject {
+    @Published var count: Int = 0
+    @Published var deathCount: Double = 0.0
+    private var timer: AnyCancellable?
+    private let startTime = Date()
+    private let mealSkipsPerSecond: Double = 23148.0
+    private let deathsPerSecond: Double = 0.289
+    
+    func start() {
+        timer = Timer.publish(every: 0.05, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                guard let self else { return }
+                let elapsed = Date().timeIntervalSince(self.startTime)
+                self.count = Int(elapsed * self.mealSkipsPerSecond)
+                self.deathCount = elapsed * self.deathsPerSecond
+            }
+    }
+    func stop() { timer?.cancel() }
+}
+
+// MARK: - Budget ViewModel
+
+@MainActor
+class BudgetViewModel: ObservableObject {
+    let dailyBudget: Double = 5.0
+    @Published var allocations: [UUID: Double] = [:]
+    
+    let items: [BudgetItem] = [
+        BudgetItem(icon: AnyView(BreadIcon(color: .inkBlack, size: 26)), name: "Bread & Grains",  minimumCost: 1.50, description: "Rice, bread, pasta — caloric staples"),
+        BudgetItem(icon: AnyView(MilkIcon(color: .inkBlack, size: 26)), name: "Dairy / Protein", minimumCost: 1.80, description: "Eggs, beans, peanut butter, or milk"),
+        BudgetItem(icon: AnyView(LeafIcon(color: .inkBlack, size: 26)), name: "Vegetables",      minimumCost: 1.20, description: "Fresh produce — often unaffordable"),
+        BudgetItem(icon: AnyView(AppleIcon(color: .inkBlack, size: 26)), name: "Fruit",           minimumCost: 1.00, description: "Nutritional but costly relative to calories"),
+        BudgetItem(icon: AnyView(WaterIcon(color: .inkBlack, size: 26)), name: "Clean Water",     minimumCost: 0.50, description: "Safe drinking water — not free everywhere"),
+    ]
+    
+    var totalSpent: Double { allocations.values.reduce(0, +) }
+    var remaining: Double { dailyBudget - totalSpent }
+    
+    var score: BudgetScore {
+        let met = items.filter { (allocations[$0.id] ?? 0) >= $0.minimumCost }.count
+        switch met {
+        case 5: return .thriving
+        case 3, 4: return .surviving
+        case 1, 2: return .struggling
+        default: return .crisis
+        }
+    }
+    
+    func allocation(for item: BudgetItem) -> Double { allocations[item.id] ?? 0 }
+    func setAllocation(_ value: Double, for item: BudgetItem) {
+        allocations[item.id] = min(max(0, value), dailyBudget)
+    }
+    func reset() { allocations = [:] }
+    
+    enum BudgetScore {
+        case thriving, surviving, struggling, crisis
+        var stampText: String {
+            switch self {
+            case .thriving:  return "STABLE"
+            case .surviving: return "FRAGILE"
+            case .struggling: return "DEFICIT"
+            case .crisis:    return "CRISIS"
+            }
+        }
+        var title: String {
+            switch self {
+            case .thriving:  return "Barely Balanced"
+            case .surviving: return "Compromising Nutrition"
+            case .struggling: return "Going Without"
+            case .crisis:    return "In Crisis"
+            }
+        }
+        var message: String {
+            switch self {
+            case .thriving: return "You managed to cover all basics on $5 — but there's zero margin. One sick day, one bus fare, one unexpected cost and it collapses entirely."
+            case .surviving: return "You covered most needs but had to skip some. That means lower energy, weaker immunity, and harder time concentrating at work or school."
+            case .struggling: return "You could only afford 1–2 food groups. This is chronic malnutrition — the kind that stunts children's growth and shortens lives."
+            case .crisis: return "You went without food entirely. For 733 million people, this is not a simulation — it's Tuesday."
+            }
+        }
+        var color: Color {
+            switch self {
+            case .thriving:  return Color.greenStamp
+            case .surviving: return Color.amberWarn
+            case .struggling: return Color.redInk
+            case .crisis:    return Color(red: 0.55, green: 0.05, blue: 0.02)
+            }
+        }
+    }
+}
+
+// MARK: - Stamp View Helper
+
+struct StampLabel: View {
+    let text: String
+    var color: Color = .redInk
+    var rotation: Double = -4
+    var body: some View {
+        Text(text)
+            .font(.system(size: 11, weight: .black, design: .monospaced))
+            .tracking(3)
+            .foregroundColor(color)
+            .padding(.horizontal, 8).padding(.vertical, 4)
+            .overlay(RoundedRectangle(cornerRadius: 3).stroke(color, lineWidth: 1.5))
+            .rotationEffect(.degrees(rotation))
+            .opacity(0.85)
+    }
+}
+
+// MARK: - Paper Texture Overlay
+
+struct PaperGrain: View {
+    var body: some View {
+        Rectangle()
+            .fill(Color.white.opacity(0.04))
+            .blendMode(.overlay)
+    }
+}
+
+// MARK: - Root
+
+struct ContentView: View {
+    @State private var selectedTab = 0
+    var body: some View {
+        TabView(selection: $selectedTab) {
+            StoriesTab()
+                .tabItem { Label("Stories", systemImage: "newspaper") }.tag(0)
+            CounterTab()
+                .tabItem { Label("Right Now", systemImage: "clock") }.tag(1)
+            DataTab()
+                .tabItem { Label("Data", systemImage: "chart.bar") }.tag(2)
+            BudgetTab()
+                .tabItem { Label("Simulate", systemImage: "scalemass") }.tag(3)
+        }
+        .tint(.redInk)
+    }
+}
+
+// MARK: ═══════════════════
+// MARK: TAB 1 – STORY CARDS
+// MARK: ═══════════════════
+
+struct StoriesTab: View {
+    let stories: [StoryCard] = [
+        StoryCard(
+            icon: AnyView(WheatIcon(color: .inkBlack, size: 56)),
+            headline: "733 Million People\nGo Hungry Every Day",
+            body: "That's 1 in every 11 people on Earth — not occasionally, but every single day. The number has been rising since 2020, driven by climate shocks, conflict, and economic collapse.",
+            accentColor: .greenStamp, source: "UN World Food Programme, 2024",
+            stampText: "URGENT"
+        ),
+        StoryCard(
+            icon: AnyView(ChildFigureIcon(color: .redInk, size: 56)),
+            headline: "A Child Dies Every\n4 Seconds from Hunger",
+            body: "148 million children under 5 are stunted due to chronic malnutrition. Stunting is permanent — it limits brain development, educational outcomes, and lifetime earnings.",
+            accentColor: .redInk, source: "UNICEF Global Nutrition Report",
+            stampText: "CRITICAL"
+        ),
+        StoryCard(
+            icon: AnyView(WasteIcon(color: .inkBlack, size: 56)),
+            headline: "40% of All Food\nIs Wasted",
+            body: "The world produces enough food to feed every person on Earth. We waste 40% of it — at farms, in transport, in stores, and in our kitchens. The problem isn't scarcity. It's distribution.",
+            accentColor: .amberWarn, source: "FAO Food Loss and Waste",
+            stampText: "FACT"
+        ),
+        StoryCard(
+            icon: AnyView(DollarIcon(color: .blueInk, size: 56)),
+            headline: "A Healthy Diet Costs\n$8/Day — Unaffordable",
+            body: "Three billion people cannot afford a nutritionally adequate diet. They survive on cheap calories — ultra-processed food, starch, sugar — which drives obesity and disease alongside starvation.",
+            accentColor: .blueInk, source: "IFPRI Food Policy Research",
+            stampText: "DISPARITY"
+        ),
+        StoryCard(
+            icon: AnyView(HouseIcon(color: .inkBlack, size: 56)),
+            headline: "Hunger Is Everywhere,\nIncluding Your City",
+            body: "44 million Americans face food insecurity. 35% live in suburbs. Many are employed — working full-time and still unable to consistently feed their families. Hunger wears many invisible faces.",
+            accentColor: Color(red: 0.45, green: 0.22, blue: 0.62), source: "Feeding America, 2024",
+            stampText: "LOCAL"
+        ),
+        StoryCard(
+            icon: AnyView(ThermometerIcon(color: .inkBlack, size: 56)),
+            headline: "Climate Will Push\n600M More Into Hunger",
+            body: "Rising temperatures, erratic rainfall, and extreme weather are destroying harvests worldwide. By 2080, climate change could push 600 million more people into food insecurity.",
+            accentColor: Color(red: 0.75, green: 0.28, blue: 0.08), source: "IPCC Sixth Assessment Report",
+            stampText: "FORECAST"
+        ),
+        StoryCard(
+            icon: AnyView(BookIcon(color: .inkBlack, size: 56)),
+            headline: "Hungry Children\nLearn Less",
+            body: "Food insecure children are twice as likely to have poor math and reading scores. Hunger impairs concentration, memory, and emotional regulation. Skipping breakfast is a barrier to an entire future.",
+            accentColor: Color(red: 0.14, green: 0.42, blue: 0.72), source: "American Academy of Pediatrics",
+            stampText: "RESEARCH"
+        ),
+    ]
+    
+    @State private var currentIndex = 0
+    @State private var dragOffset: CGFloat = 0
+    @State private var isDragging = false
+    @State private var cardOpacity: Double = 1.0
+    
+    var body: some View {
+        GeometryReader { geo in
+            ZStack {
+                Color.agedPaper.ignoresSafeArea()
+                // Subtle cross-hatch texture via repeating lines
+                Canvas { ctx, sz in
+                    for y in stride(from: 0, to: sz.height, by: 28) {
+                        var line = Path()
+                        line.move(to: CGPoint(x: 0, y: y))
+                        line.addLine(to: CGPoint(x: sz.width, y: y))
+                        ctx.stroke(line, with: .color(Color.newsprint.opacity(0.55)), lineWidth: 0.5)
+                    }
+                }
+                .ignoresSafeArea()
+                
+                VStack(spacing: 0) {
+                    // Header — editorial masthead
+                    VStack(spacing: 0) {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 1) {
+                                Text("THE HUNGER REPORT")
+                                    .font(.system(size: 10, weight: .black, design: .monospaced))
+                                    .foregroundColor(.fadedInk).tracking(3)
+                                Text("Swipe to read")
+                                    .font(.system(size: 12, weight: .regular, design: .serif))
+                                    .foregroundColor(.fadedInk.opacity(0.6)).italic()
+                            }
+                            Spacer()
+                            // Dot indicators as a vintage counter
+                            HStack(spacing: 4) {
+                                ForEach(0..<stories.count, id: \.self) { i in
+                                    Circle()
+                                        .fill(i == currentIndex ? Color.inkBlack : Color.fadedInk.opacity(0.25))
+                                        .frame(width: i == currentIndex ? 8 : 5, height: i == currentIndex ? 8 : 5)
+                                        .animation(.spring(response: 0.3), value: currentIndex)
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 22).padding(.vertical, 12)
+                        Divider().background(Color.inkBlack.opacity(0.25)).padding(.horizontal, 22)
+                    }
+                    
+                    Spacer()
+                    
+                    ZStack {
+                        if currentIndex < stories.count - 1 {
+                            StoryCardView(card: stories[currentIndex + 1], size: geo.size)
+                                .scaleEffect(0.93).offset(y: 16).opacity(0.5)
+                        }
+                        StoryCardView(card: stories[currentIndex], size: geo.size)
+                            .offset(x: dragOffset)
+                            .rotationEffect(.degrees(Double(dragOffset) / 28.0))
+                            .scaleEffect(isDragging ? 0.97 : 1.0)
+                            .opacity(cardOpacity)
+                            .gesture(
+                                DragGesture()
+                                    .onChanged { v in
+                                        dragOffset = v.translation.width
+                                        isDragging = true
+                                        cardOpacity = 1.0 - abs(dragOffset)
+                                    }
+                                    .onEnded { v in
+                                        let threshold: CGFloat = 85
+                                        withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
+                                            if v.translation.width < -threshold && currentIndex < stories.count - 1 {
+                                                dragOffset = -geo.size.width * 1.5; Haptics.impact(.light)
+                                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.22) {
+                                                    currentIndex += 1; dragOffset = 0; cardOpacity = 1; isDragging = false
+                                                }
+                                            } else if v.translation.width > threshold && currentIndex > 0 {
+                                                dragOffset = geo.size.width * 1.5; Haptics.impact(.light)
+                                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.22) {
+                                                    currentIndex -= 1; dragOffset = 0; cardOpacity = 1; isDragging = false
+                                                }
+                                            } else {
+                                                dragOffset = 0; cardOpacity = 1; isDragging = false
+                                            }
+                                        }
+                                    }
+                            )
+                    }
+                    
+                    Spacer()
+                    
+                    HStack {
+                        Button(action: {
+                            guard currentIndex > 0 else { return }
+                            Haptics.selection()
+                            withAnimation(.spring(response: 0.4)) { currentIndex -= 1 }
+                        }) {
+                            Image(systemName: "arrow.left")
+                                .font(.system(size: 18, weight: .black))
+                                .foregroundColor(currentIndex > 0 ? .inkBlack : .fadedInk.opacity(0.3))
+                                .padding(12)
+                                .background(Color.warmPaper)
+                                .clipShape(Circle())
+                                .overlay(Circle().stroke(Color.inkBlack.opacity(0.15), lineWidth: 1))
+                        }
+                        Spacer()
+                        Text("\(currentIndex + 1) / \(stories.count)")
+                            .font(.system(size: 13, weight: .black, design: .monospaced))
+                            .foregroundColor(.fadedInk)
+                        Spacer()
+                        Button(action: {
+                            guard currentIndex < stories.count - 1 else { return }
+                            Haptics.selection()
+                            withAnimation(.spring(response: 0.4)) { currentIndex += 1 }
+                        }) {
+                            Image(systemName: "arrow.right")
+                                .font(.system(size: 18, weight: .black))
+                                .foregroundColor(currentIndex < stories.count - 1 ? .inkBlack : .fadedInk.opacity(0.3))
+                                .padding(12)
+                                .background(Color.warmPaper)
+                                .clipShape(Circle())
+                                .overlay(Circle().stroke(Color.inkBlack.opacity(0.15), lineWidth: 1))
+                        }
+                    }
+                    .padding(.horizontal, 36).padding(.bottom, 20)
+                }
+            }
+        }
+    }
+}
+
+struct StoryCardView: View {
+    let card: StoryCard
+    let size: CGSize
+    @State private var appeared = false
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Accent band at top
+            Rectangle()
+                .fill(card.accentColor)
+                .frame(height: 5)
+            
+            HStack(alignment: .top) {
+                // Icon box — like a newspaper mugshot
+                ZStack {
+                    Rectangle()
+                        .fill(card.accentColor.opacity(0.08))
+                        .frame(width: 72, height: 72)
+                        .overlay(Rectangle().stroke(card.accentColor.opacity(0.3), lineWidth: 1))
+                    card.icon
+                        .scaleEffect(appeared ? 1 : 0.5)
+                        .animation(.spring(response: 0.5, dampingFraction: 0.6).delay(0.1), value: appeared)
+                }
+                
+                Spacer().frame(width: 14)
+                
+                VStack(alignment: .leading, spacing: 6) {
+                    StampLabel(text: card.stampText, color: card.accentColor, rotation: -2)
+                        .opacity(appeared ? 1 : 0)
+                        .animation(.easeOut(duration: 0.3).delay(0.05), value: appeared)
+                    Text(card.headline)
+                        .font(.system(size: 19, weight: .black, design: .serif))
+                        .foregroundColor(.inkBlack)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .opacity(appeared ? 1 : 0)
+                        .offset(y: appeared ? 0 : 10)
+                        .animation(.easeOut(duration: 0.45).delay(0.15), value: appeared)
+                }
+                .padding(.top, 4)
+            }
+            .padding(.horizontal, 20).padding(.top, 18)
+            
+            // Horizontal rule — newspaper style
+            HStack(spacing: 4) {
+                Rectangle().fill(card.accentColor).frame(height: 2)
+                Rectangle().fill(Color.inkBlack.opacity(0.15)).frame(height: 1)
+            }
+            .padding(.horizontal, 20).padding(.top, 14).padding(.bottom, 12)
+            
+            Text(card.body)
+                .font(.system(size: 15, design: .serif))
+                .foregroundColor(.fadedInk)
+                .lineSpacing(4)
+                .padding(.horizontal, 20)
+                .fixedSize(horizontal: false, vertical: true)
+                .opacity(appeared ? 1 : 0)
+                .offset(y: appeared ? 0 : 6)
+                .animation(.easeOut(duration: 0.45).delay(0.28), value: appeared)
+            
+            Spacer()
+            
+            // Footer — editorial attribution
+            HStack {
+                Rectangle().fill(Color.newsprint).frame(height: 1)
+                Text(card.source)
+                    .font(.system(size: 9, weight: .medium, design: .monospaced))
+                    .foregroundColor(.fadedInk.opacity(0.5))
+                    .lineLimit(1)
+                    .fixedSize()
+                Rectangle().fill(Color.newsprint).frame(height: 1)
+            }
+            .padding(.horizontal, 20).padding(.bottom, 18)
+        }
+        .frame(width: size.width - 36, height: size.height * 0.58)
+        .background(Color.warmPaper)
+        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+        .shadow(color: Color.inkBlack.opacity(0.18), radius: 12, x: 3, y: 6)
+        .onAppear { appeared = true }
+        .onChange(of: card.id) {
+            appeared = false
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { appeared = true }
+        }
+    }
+}
+
+// MARK: ═══════════════════
+// MARK: TAB 2 – LIVE COUNTER
+// MARK: ═══════════════════
+
+struct CounterTab: View {
+    @StateObject private var vm = HungerCounterViewModel()
+    @State private var pulse = false
+    
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 14) {
+                // Masthead
+                VStack(spacing: 2) {
+                    Text("— HAPPENING RIGHT NOW —")
+                        .font(.system(size: 10, weight: .black, design: .monospaced))
+                        .foregroundColor(.fadedInk).tracking(2)
+                    Text("Since you opened this app")
+                        .font(.system(size: 14, design: .serif)).italic()
+                        .foregroundColor(.fadedInk.opacity(0.6))
+                }
+                .padding(.top, 28)
+                
+                // Meal skips counter — typewriter style
+                VStack(spacing: 6) {
+                    Text("\(vm.count)")
+                        .font(.system(size: 58, weight: .black, design: .monospaced))
+                        .foregroundColor(.inkBlack)
+                        .contentTransition(.numericText(countsDown: false))
+                        .animation(.linear(duration: 0.05), value: vm.count)
+                        .monospacedDigit()
+                    HStack(spacing: 6) {
+                        Rectangle().fill(Color.inkBlack).frame(height: 2)
+                        Text("MEALS SKIPPED DUE TO HUNGER")
+                            .font(.system(size: 9, weight: .black, design: .monospaced))
+                            .foregroundColor(.fadedInk).tracking(1.5)
+                            .fixedSize()
+                        Rectangle().fill(Color.inkBlack).frame(height: 2)
+                    }
+                }
+                .padding(.vertical, 28).padding(.horizontal, 20)
+                .frame(maxWidth: .infinity)
+                .background(Color.warmPaper)
+                .overlay(Rectangle().stroke(Color.inkBlack.opacity(0.12), lineWidth: 1))
+                .padding(.horizontal, 20)
+                
+                // Deaths counter — red ink
+                VStack(spacing: 8) {
+                    HStack(spacing: 7) {
+                        Circle()
+                            .fill(Color.redInk)
+                            .frame(width: 8, height: 8)
+                            .scaleEffect(pulse ? 1.5 : 1.0)
+                            .animation(.easeInOut(duration: 0.75).repeatForever(), value: pulse)
+                        Text("HUNGER-RELATED DEATHS THIS SESSION")
+                            .font(.system(size: 9, weight: .black, design: .monospaced))
+                            .foregroundColor(.redInk).tracking(1.2)
+                    }
+                    Text(String(format: "%.1f", vm.deathCount))
+                        .font(.system(size: 50, weight: .black, design: .monospaced))
+                        .foregroundColor(.redInk)
+                        .contentTransition(.numericText(countsDown: false))
+                        .animation(.linear(duration: 0.05), value: vm.deathCount)
+                    Text("deaths since this session began")
+                        .font(.system(size: 13, design: .serif)).italic()
+                        .foregroundColor(.fadedInk.opacity(0.6))
+                }
+                .padding(.vertical, 24).padding(.horizontal, 24)
+                .frame(maxWidth: .infinity)
+                .background(Color.warmPaper)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 2)
+                        .stroke(Color.redInk.opacity(0.45), lineWidth: 1.5)
+                        .padding(3)
+                )
+                .padding(.horizontal, 20)
+                
+                // Scale cards
+                VStack(spacing: 10) {
+                    HStack {
+                        Rectangle().fill(Color.inkBlack).frame(height: 1)
+                        Text("TO PUT THIS IN SCALE")
+                            .font(.system(size: 9, weight: .black, design: .monospaced))
+                            .foregroundColor(.fadedInk).tracking(2).fixedSize()
+                        Rectangle().fill(Color.inkBlack).frame(height: 1)
+                    }
+                    .padding(.horizontal, 4)
+                    
+                    ScaleCard(stat: "25,000",  label: "people die from hunger-related causes every day", icon: AnyView(GlobeIcon(color: .redInk, size: 28)), color: .redInk)
+                    ScaleCard(stat: "1 in 11", label: "people on Earth face hunger right now",           icon: AnyView(ChildFigureIcon(color: .amberWarn, size: 28)), color: .amberWarn)
+                    ScaleCard(stat: "3 sec",   label: "between each child death from malnutrition",      icon: AnyView(ChildFigureIcon(color: .blueInk, size: 28)), color: .blueInk)
+                    ScaleCard(stat: "$330B",   label: "estimated annual cost to end world hunger — 0.4% of global GDP", icon: AnyView(DollarIcon(color: .greenStamp, size: 28)), color: .greenStamp)
+                }
+                .padding(.horizontal, 20).padding(.bottom, 40)
+            }
+        }
+        .background(Color.agedPaper.ignoresSafeArea())
+        .onAppear { vm.start(); pulse = true }
+        .onDisappear { vm.stop() }
+    }
+}
+
+struct ScaleCard: View {
+    let stat: String; let label: String; let icon: AnyView; let color: Color
+    @State private var appeared = false
+    
+    var body: some View {
+        HStack(spacing: 14) {
+            icon.frame(width: 34)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(stat)
+                    .font(.system(size: 22, weight: .black, design: .monospaced))
+                    .foregroundColor(color)
+                Text(label)
+                    .font(.system(size: 13, design: .serif))
+                    .foregroundColor(.fadedInk)
+                    .lineSpacing(2).fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(14).frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.warmPaper)
+        .overlay(Rectangle().stroke(Color.inkBlack.opacity(0.1), lineWidth: 1))
+        .overlay(Rectangle().fill(color).frame(width: 3), alignment: .leading)
+        .opacity(appeared ? 1 : 0).offset(x: appeared ? 0 : -18)
+        .onAppear { withAnimation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.1)) { appeared = true } }
+    }
+}
+
+// MARK: ═════════════════
+// MARK: TAB 3 – DATA VIZ
+// MARK: ═════════════════
+
+struct DataTab: View {
+    let regions: [RegionData] = [
+        RegionData(name: "Sub-Saharan Africa", flag: "SSA", percent: 22.3, millions: 298, color: .redInk),
+        RegionData(name: "South Asia",         flag: "SA",  percent: 15.8, millions: 333, color: .amberWarn),
+        RegionData(name: "East & SE Asia",     flag: "EA",  percent: 8.1,  millions: 153, color: .blueInk),
+        RegionData(name: "Latin America",      flag: "LAM", percent: 8.6,  millions: 57,  color: Color(red: 0.45, green: 0.22, blue: 0.62)),
+        RegionData(name: "North Africa",       flag: "NAF", percent: 5.4,  millions: 20,  color: Color(red: 0.72, green: 0.38, blue: 0.08)),
+        RegionData(name: "North America",      flag: "NAM", percent: 8.0,  millions: 44,  color: .greenStamp),
+    ]
+    
+    @State private var animateBars = false
+    @State private var selected: RegionData? = nil
+    
+    var sorted: [RegionData] { regions.sorted { $0.percent > $1.percent } }
+    
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 0) {
+                // Editorial header
+                VStack(spacing: 4) {
+                    Text("THE HUNGER ATLAS")
+                        .font(.system(size: 22, weight: .black, design: .serif))
+                        .foregroundColor(.inkBlack)
+                    Text("Food insecurity by region · Tap a row to expand")
+                        .font(.system(size: 11, design: .monospaced))
+                        .foregroundColor(.fadedInk).tracking(0.5)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 20).padding(.top, 24).padding(.bottom, 4)
+                
+                Divider().background(Color.inkBlack).padding(.horizontal, 20).padding(.bottom, 14)
+                
+                // Bar chart section
+                Text("% POPULATION FOOD INSECURE")
+                    .font(.system(size: 8, weight: .black, design: .monospaced))
+                    .foregroundColor(.fadedInk.opacity(0.6)).tracking(2)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 20).padding(.bottom, 8)
+                
+                ForEach(Array(sorted.enumerated()), id: \.element.id) { i, region in
+                    BarRow(region: region, maxPercent: 25.0, animate: animateBars,
+                           delay: Double(i) * 0.1, isSelected: selected?.id == region.id) {
+                        Haptics.selection()
+                        withAnimation(.spring(response: 0.35)) {
+                            selected = selected?.id == region.id ? nil : region
+                        }
+                    }
+                }
+                
+                if let r = selected {
+                    RegionDetailCard(region: r)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                        .padding(.horizontal, 20).padding(.top, 6)
+                }
+                
+                // Bubble chart
+                VStack(alignment: .leading, spacing: 8) {
+                    Divider().background(Color.inkBlack.opacity(0.2)).padding(.horizontal, 20)
+                    Text("MILLIONS AFFECTED  ·  BUBBLE = POPULATION SCALE")
+                        .font(.system(size: 8, weight: .black, design: .monospaced))
+                        .foregroundColor(.fadedInk.opacity(0.6)).tracking(1.5)
+                        .padding(.horizontal, 20).padding(.top, 16)
+                    BubbleChartView(regions: regions, animate: animateBars)
+                        .frame(height: 200).padding(.horizontal, 20)
+                }
+                
+                // Trend
+                VStack(alignment: .leading, spacing: 8) {
+                    Divider().background(Color.inkBlack.opacity(0.2)).padding(.horizontal, 20)
+                    Text("GLOBAL HUNGER TREND  2015–2024  (MILLIONS)")
+                        .font(.system(size: 8, weight: .black, design: .monospaced))
+                        .foregroundColor(.fadedInk.opacity(0.6)).tracking(1.5)
+                        .padding(.horizontal, 20).padding(.top, 16)
+                    TrendLineView(animate: animateBars)
+                        .frame(height: 160).padding(.horizontal, 20)
+                }
+                .padding(.bottom, 40)
+            }
+        }
+        .background(Color.agedPaper.ignoresSafeArea())
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                withAnimation(.spring(response: 0.7, dampingFraction: 0.8)) { animateBars = true }
+            }
+        }
+    }
+}
+
+struct BarRow: View {
+    let region: RegionData; let maxPercent: Double
+    let animate: Bool; let delay: Double
+    let isSelected: Bool; let onTap: () -> Void
+    
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: 8) {
+                // Region code as a stamp
+                Text(region.flag)
+                    .font(.system(size: 7, weight: .black, design: .monospaced))
+                    .foregroundColor(region.color)
+                    .padding(.horizontal, 4).padding(.vertical, 3)
+                    .overlay(Rectangle().stroke(region.color, lineWidth: 1.2))
+                    .frame(width: 36)
+                
+                Text(region.name)
+                    .font(.system(size: 11, weight: .semibold, design: .serif))
+                    .foregroundColor(.inkBlack.opacity(0.75))
+                    .frame(width: 110, alignment: .leading).lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        Rectangle()
+                            .fill(Color.newsprint.opacity(0.5))
+                            .frame(height: 18)
+                        Rectangle()
+                            .fill(region.color)
+                            .frame(width: animate ? geo.size.width * CGFloat(region.percent / maxPercent) : 0, height: 18)
+                            .animation(.spring(response: 0.7, dampingFraction: 0.8).delay(delay), value: animate)
+                    }
+                }.frame(height: 18)
+                
+                Text(String(format: "%.1f%%", region.percent))
+                    .font(.system(size: 12, weight: .black, design: .monospaced))
+                    .foregroundColor(region.color)
+                    .frame(width: 44, alignment: .trailing)
+            }
+            .padding(.vertical, 9).padding(.horizontal, 20)
+            .background(isSelected ? region.color.opacity(0.06) : Color.clear)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+struct RegionDetailCard: View {
+    let region: RegionData
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text(region.name)
+                    .font(.system(size: 16, weight: .black, design: .serif))
+                    .foregroundColor(.inkBlack)
+                Spacer()
+                Text("TAP TO DISMISS")
+                    .font(.system(size: 7, weight: .black, design: .monospaced))
+                    .foregroundColor(.fadedInk.opacity(0.4)).tracking(1)
+            }
+            HStack(spacing: 20) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(format: "%.1f%%", region.percent))
+                        .font(.system(size: 28, weight: .black, design: .monospaced))
+                        .foregroundColor(region.color)
+                    Text("food insecure")
+                        .font(.system(size: 11, design: .serif)).italic()
+                        .foregroundColor(.fadedInk)
+                }
+                Rectangle().fill(Color.inkBlack.opacity(0.12)).frame(width: 1, height: 44)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("\(Int(region.millions))M")
+                        .font(.system(size: 28, weight: .black, design: .monospaced))
+                        .foregroundColor(.inkBlack)
+                    Text("people affected")
+                        .font(.system(size: 11, design: .serif)).italic()
+                        .foregroundColor(.fadedInk)
+                }
+            }
+        }
+        .padding(16)
+        .background(Color.warmPaper)
+        .overlay(Rectangle().stroke(region.color, lineWidth: 2), alignment: .leading)
+        .overlay(
+            Rectangle()
+                .fill(region.color)
+                .frame(width: 4),
+            alignment: .leading
+        )
+        .shadow(color: .inkBlack.opacity(0.08), radius: 6, x: 0, y: 3)
+    }
+}
+
+struct BubbleChartView: View {
+    let regions: [RegionData]; let animate: Bool
+    var maxM: Double { regions.map(\.millions).max() ?? 1 }
+    let pos: [(CGFloat, CGFloat)] = [(0.15,0.38),(0.45,0.22),(0.72,0.48),(0.28,0.68),(0.62,0.72),(0.88,0.28)]
+    
+    var body: some View {
+        GeometryReader { geo in
+            ZStack {
+                Color.warmPaper
+                    .overlay(
+                        Canvas { ctx, sz in
+                            for y in stride(from: 0, to: sz.height, by: 20) {
+                                var line = Path()
+                                line.move(to: CGPoint(x: 0, y: y))
+                                line.addLine(to: CGPoint(x: sz.width, y: y))
+                                ctx.stroke(line, with: .color(Color.newsprint.opacity(0.5)), lineWidth: 0.5)
+                            }
+                        }
+                    )
+                
+                ForEach(Array(regions.enumerated()), id: \.element.id) { i, r in
+                    let maxR: CGFloat = 64
+                    let radius = maxR * CGFloat(r.millions / maxM)
+                    let p = pos[i % pos.count]
+                    ZStack {
+                        Circle()
+                            .fill(r.color.opacity(0.12))
+                            .frame(width: animate ? radius * 2 : 0, height: animate ? radius * 2 : 0)
+                            .animation(.spring(response: 0.8, dampingFraction: 0.7).delay(Double(i) * 0.1), value: animate)
+                        Circle()
+                            .stroke(r.color, lineWidth: 1.5)
+                            .frame(width: animate ? radius * 2 : 0, height: animate ? radius * 2 : 0)
+                            .animation(.spring(response: 0.8, dampingFraction: 0.7).delay(Double(i) * 0.1), value: animate)
+                        if radius > 26 {
+                            VStack(spacing: 1) {
+                                Text(r.flag)
+                                    .font(.system(size: 7, weight: .black, design: .monospaced))
+                                    .foregroundColor(r.color)
+                                Text("\(Int(r.millions))M")
+                                    .font(.system(size: 8, weight: .black, design: .monospaced))
+                                    .foregroundColor(r.color)
+                            }
+                            .opacity(animate ? 1 : 0)
+                            .animation(.easeIn(duration: 0.3).delay(Double(i) * 0.1 + 0.45), value: animate)
+                        }
+                    }
+                    .position(x: p.0 * geo.size.width, y: p.1 * geo.size.height)
+                }
+            }
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 4))
+        .overlay(Rectangle().stroke(Color.inkBlack.opacity(0.12), lineWidth: 1))
+    }
+}
+
+struct TrendLineView: View {
+    let animate: Bool
+    let data: [(year: Int, value: Double)] = [
+        (2015,607),(2016,613),(2017,624),(2018,638),(2019,648),(2020,720),(2021,730),(2022,735),(2023,733),(2024,733)
+    ]
+    var minV: Double { data.map(\.value).min()! }
+    var maxV: Double { data.map(\.value).max()! }
+    
+    func pts(w: CGFloat, h: CGFloat, pad: CGFloat) -> [CGPoint] {
+        data.enumerated().map { i, d in
+            let xRatio = CGFloat(i) / CGFloat(data.count - 1)
+            let yRatio = CGFloat((d.value - minV) / (maxV - minV))
+            return CGPoint(
+                x: pad + (w - pad * 2) * xRatio,
+                y: h - pad - (h - pad * 2) * yRatio
+            )
+        }
+    }
+    
+    var body: some View {
+        GeometryReader { geo in
+            let w = geo.size.width; let h = geo.size.height; let pad: CGFloat = 28
+            ZStack(alignment: .topLeading) {
+                Color.warmPaper
+                Canvas { ctx, sz in
+                    for y in stride(from: 0, to: sz.height, by: 18) {
+                        var line = Path()
+                        line.move(to: CGPoint(x: 0, y: y))
+                        line.addLine(to: CGPoint(x: sz.width, y: y))
+                        ctx.stroke(line, with: .color(Color.newsprint.opacity(0.5)), lineWidth: 0.5)
+                    }
+                }
+                
+                // Grid lines
+                ForEach([600, 640, 680, 720], id: \.self) { val in
+                    let yRatio = CGFloat((Double(val) - minV) / (maxV - minV))
+                    let y = h - pad - (h - pad * 2) * yRatio
+                    Path { p in p.move(to: CGPoint(x: pad, y: y)); p.addLine(to: CGPoint(x: w - pad, y: y)) }
+                        .stroke(Color.inkBlack.opacity(0.08), style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
+                    Text("\(val)M")
+                        .font(.system(size: 7, design: .monospaced))
+                        .foregroundColor(.fadedInk.opacity(0.45))
+                        .position(x: pad + 14, y: y - 8)
+                }
+                
+                // Area fill
+                Path { p in
+                    let points = pts(w: w, h: h, pad: pad)
+                    guard let first = points.first else { return }
+                    p.move(to: CGPoint(x: first.x, y: h - pad))
+                    for pt in points { p.addLine(to: pt) }
+                    if let last = points.last { p.addLine(to: CGPoint(x: last.x, y: h - pad)) }
+                    p.closeSubpath()
+                }
+                .fill(Color.redInk.opacity(0.1))
+                .opacity(animate ? 1 : 0)
+                .animation(.easeIn(duration: 0.6).delay(0.4), value: animate)
+                
+                // Line
+                TrendPath(points: pts(w: w, h: h, pad: pad), progress: animate ? 1.0 : 0.0)
+                    .stroke(Color.redInk, style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
+                    .animation(.easeInOut(duration: 1.2).delay(0.2), value: animate)
+                
+                // Dots + year labels
+                ForEach(Array(data.enumerated()), id: \.offset) { i, d in
+                    let points = pts(w: w, h: h, pad: pad)
+                    if i < points.count {
+                        let pt = points[i]
+                        Circle().fill(Color.redInk).frame(width: 5, height: 5).position(pt)
+                            .opacity(animate ? 1 : 0)
+                            .animation(.easeIn(duration: 0.2).delay(Double(i)*0.08 + 0.6), value: animate)
+                        if i % 2 == 0 {
+                            Text("\(d.year)")
+                                .font(.system(size: 7, design: .monospaced))
+                                .foregroundColor(.fadedInk.opacity(0.5))
+                                .position(x: pt.x, y: h - 10)
+                        }
+                    }
+                }
+                
+                // COVID annotation — handwritten-ish
+                Text("▲ COVID SURGE")
+                    .font(.system(size: 8, weight: .black, design: .monospaced))
+                    .foregroundColor(Color.redInk.opacity(0.6))
+                    .position(x: w * 0.575, y: 14)
+                    .opacity(animate ? 1 : 0)
+                    .animation(.easeIn.delay(1.2), value: animate)
+            }
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 4))
+        .overlay(Rectangle().stroke(Color.inkBlack.opacity(0.12), lineWidth: 1))
+    }
+}
+
+struct TrendPath: Shape {
+    var points: [CGPoint]
+    var progress: Double
+    var animatableData: Double {
+        get { progress }
+        set { progress = newValue }
+    }
+    func path(in rect: CGRect) -> Path {
+        var p = Path()
+        guard points.count > 1 else { return p }
+        let count = max(2, Int(Double(points.count - 1) * progress) + 1)
+        p.move(to: points[0])
+        for i in 1..<count { p.addLine(to: points[i]) }
+        return p
+    }
+}
+
+// MARK: ══════════════════════
+// MARK: TAB 4 – BUDGET SIM
+// MARK: ══════════════════════
+
+struct BudgetTab: View {
+    @StateObject private var vm = BudgetViewModel()
+    @State private var phase: Phase = .intro
+    
+    enum Phase { case intro, simulate, result }
+    
+    var body: some View {
+        Group {
+            switch phase {
+            case .intro:
+                BudgetIntroView { withAnimation(.spring()) { phase = .simulate } }
+            case .simulate:
+                BudgetSimulatorView(vm: vm) { withAnimation(.spring()) { phase = .result } }
+            case .result:
+                BudgetResultView(vm: vm) {
+                    vm.reset()
+                    withAnimation(.spring()) { phase = .intro }
+                }
+            }
+        }
+        .background(Color.agedPaper.ignoresSafeArea())
+    }
+}
+
+struct BudgetIntroView: View {
+    let onStart: () -> Void
+    @State private var appeared = false
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            Spacer()
+            VStack(spacing: 28) {
+                // Large ink-drawn icon
+                ScalesIcon(color: .inkBlack, size: 72)
+                    .scaleEffect(appeared ? 1 : 0.35)
+                    .animation(.spring(response: 0.6, dampingFraction: 0.55), value: appeared)
+                
+                VStack(spacing: 8) {
+                    StampLabel(text: "SIMULATION", color: .redInk, rotation: -1.5)
+                    Text("The $5 Challenge")
+                        .font(.system(size: 28, weight: .black, design: .serif))
+                        .foregroundColor(.inkBlack)
+                    Text("Live on a food-insecure budget")
+                        .font(.system(size: 15, design: .serif)).italic()
+                        .foregroundColor(.fadedInk)
+                }
+                .opacity(appeared ? 1 : 0).offset(y: appeared ? 0 : 18)
+                .animation(.easeOut(duration: 0.5).delay(0.2), value: appeared)
+                
+                Text("The average benefit in high food-insecurity scenarios is around $5/day per person. Allocate that $5 across food categories and discover how impossible the math truly is.")
+                    .font(.system(size: 14, design: .serif))
+                    .foregroundColor(.fadedInk.opacity(0.8))
+                    .multilineTextAlignment(.center).lineSpacing(4)
+                    .padding(.horizontal, 32)
+                    .opacity(appeared ? 1 : 0)
+                    .animation(.easeOut(duration: 0.5).delay(0.35), value: appeared)
+                
+                Button(action: { Haptics.impact(); onStart() }) {
+                    HStack(spacing: 8) {
+                        Text("Start the Challenge")
+                            .font(.system(size: 15, weight: .black, design: .monospaced))
+                        Image(systemName: "arrow.right")
+                    }
+                    .foregroundColor(.warmPaper)
+                    .padding(.horizontal, 28).padding(.vertical, 14)
+                    .background(Color.inkBlack)
+                }
+                .opacity(appeared ? 1 : 0)
+                .animation(.easeOut(duration: 0.5).delay(0.5), value: appeared)
+            }
+            Spacer()
+        }
+        .onAppear { appeared = true }
+    }
+}
+
+struct BudgetSimulatorView: View {
+    @ObservedObject var vm: BudgetViewModel
+    let onSubmit: () -> Void
+    
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 0) {
+                // Budget meter header
+                VStack(spacing: 8) {
+                    HStack {
+                        Text("DAILY BUDGET")
+                            .font(.system(size: 9, weight: .black, design: .monospaced))
+                            .foregroundColor(.fadedInk).tracking(1.5)
+                        Spacer()
+                        Text(String(format: "$%.2f remaining", vm.remaining))
+                            .font(.system(size: 13, weight: .black, design: .monospaced))
+                            .foregroundColor(vm.remaining < 0.5 ? .redInk : .greenStamp)
+                    }
+                    GeometryReader { geo in
+                        ZStack(alignment: .leading) {
+                            Rectangle().fill(Color.newsprint).frame(height: 8)
+                            Rectangle()
+                                .fill(vm.remaining < 0.5 ? Color.redInk : Color.inkBlack)
+                                .frame(width: geo.size.width * CGFloat(min(vm.totalSpent / vm.dailyBudget, 1.0)), height: 8)
+                                .animation(.spring(response: 0.3), value: vm.totalSpent)
+                        }
+                    }.frame(height: 8)
+                    HStack {
+                        Text("$0")
+                        Spacer()
+                        Text("$5.00 MAX")
+                    }
+                    .font(.system(size: 8, design: .monospaced))
+                    .foregroundColor(.fadedInk.opacity(0.5))
+                }
+                .padding(.horizontal, 20).padding(.top, 22).padding(.bottom, 14)
+                
+                Text("Drag each slider. Try to meet the minimum for every category — but you only have $5.")
+                    .font(.system(size: 13, design: .serif)).italic()
+                    .foregroundColor(.fadedInk.opacity(0.7))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24).padding(.bottom, 16)
+                
+                VStack(spacing: 8) {
+                    ForEach(vm.items) { item in BudgetItemRow(item: item, vm: vm) }
+                }
+                .padding(.horizontal, 16)
+                
+                VStack(spacing: 8) {
+                    Button(action: { Haptics.notification(.warning); onSubmit() }) {
+                        Text("See What This Means →")
+                            .font(.system(size: 15, weight: .black, design: .monospaced))
+                            .foregroundColor(.warmPaper)
+                            .frame(maxWidth: .infinity).padding(.vertical, 16)
+                            .background(Color.inkBlack)
+                    }
+                    Text("There are no wrong answers — the point is to feel the constraints.")
+                        .font(.system(size: 11, design: .serif)).italic()
+                        .foregroundColor(.fadedInk.opacity(0.5))
+                        .multilineTextAlignment(.center)
+                }
+                .padding(.horizontal, 16).padding(.top, 20).padding(.bottom, 40)
+            }
+        }
+    }
+}
+
+struct BudgetItemRow: View {
+    let item: BudgetItem
+    @ObservedObject var vm: BudgetViewModel
+    @State private var local: Double = 0
+    var met: Bool { local >= item.minimumCost }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                // Use drawn icon in small box
+                ZStack {
+                    Rectangle().fill(met ? Color.greenStamp.opacity(0.1) : Color.newsprint.opacity(0.3))
+                        .frame(width: 40, height: 40)
+                    item.icon
+                }
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(item.name)
+                        .font(.system(size: 14, weight: .black, design: .serif))
+                        .foregroundColor(.inkBlack)
+                    Text(item.description)
+                        .font(.system(size: 11, design: .serif)).italic()
+                        .foregroundColor(.fadedInk.opacity(0.6))
+                }
+                Spacer()
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text(String(format: "$%.2f", local))
+                        .font(.system(size: 16, weight: .black, design: .monospaced))
+                        .foregroundColor(met ? .greenStamp : .fadedInk)
+                        .animation(.spring(response: 0.2), value: local)
+                    Text("min $\(String(format: "%.2f", item.minimumCost))")
+                        .font(.system(size: 9, design: .monospaced))
+                        .foregroundColor(met ? .greenStamp.opacity(0.6) : .redInk.opacity(0.7))
+                }
+            }
+            HStack(spacing: 10) {
+                Slider(value: $local, in: 0...vm.dailyBudget, step: 0.05)
+                    .tint(met ? .greenStamp : .amberWarn)
+                    .onChange(of: local) { Haptics.selection(); vm.setAllocation(local, for: item) }
+                // Check/X as a stamp
+                ZStack {
+                    Rectangle().fill(met ? Color.greenStamp.opacity(0.12) : Color.redInk.opacity(0.08))
+                        .frame(width: 28, height: 28)
+                    Image(systemName: met ? "checkmark" : "xmark")
+                        .font(.system(size: 11, weight: .black))
+                        .foregroundColor(met ? .greenStamp : .redInk)
+                }
+            }
+        }
+        .padding(14)
+        .background(Color.warmPaper)
+        .overlay(Rectangle().stroke(met ? Color.greenStamp.opacity(0.5) : Color.newsprint, lineWidth: 1))
+        .overlay(Rectangle().fill(met ? Color.greenStamp : Color.newsprint).frame(width: 3), alignment: .leading)
+        .onAppear { local = vm.allocation(for: item) }
+    }
+}
+
+struct BudgetResultView: View {
+    @ObservedObject var vm: BudgetViewModel
+    let onReset: () -> Void
+    @State private var appeared = false
+    
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 0) {
+                Spacer(minLength: 36)
+                
+                VStack(spacing: 16) {
+                    StampLabel(text: vm.score.stampText, color: vm.score.color, rotation: -3)
+                        .scaleEffect(appeared ? 1 : 0.3)
+                        .animation(.spring(response: 0.5, dampingFraction: 0.5), value: appeared)
+                    Text(vm.score.title)
+                        .font(.system(size: 28, weight: .black, design: .serif))
+                        .foregroundColor(vm.score.color)
+                        .multilineTextAlignment(.center)
+                        .opacity(appeared ? 1 : 0)
+                        .animation(.easeOut(duration: 0.5).delay(0.2), value: appeared)
+                }
+                .padding(.horizontal, 24)
+                
+                Divider().background(vm.score.color.opacity(0.5)).padding(.horizontal, 40).padding(.top, 14)
+                
+                Text(vm.score.message)
+                    .font(.system(size: 15, design: .serif))
+                    .foregroundColor(.fadedInk).lineSpacing(5)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 28).padding(.top, 16)
+                    .opacity(appeared ? 1 : 0)
+                    .animation(.easeOut(duration: 0.5).delay(0.35), value: appeared)
+                
+                // Allocation breakdown
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("YOUR ALLOCATIONS")
+                        .font(.system(size: 9, weight: .black, design: .monospaced))
+                        .foregroundColor(.fadedInk).tracking(2)
+                    
+                    ForEach(vm.items) { item in
+                        let a = vm.allocation(for: item)
+                        let met = a >= item.minimumCost
+                        HStack {
+                            item.icon.frame(width: 22)
+                            Text(item.name)
+                                .font(.system(size: 13, weight: .semibold, design: .serif))
+                                .foregroundColor(.fadedInk)
+                            Spacer()
+                            Text(String(format: "$%.2f", a))
+                                .font(.system(size: 13, weight: .black, design: .monospaced))
+                                .foregroundColor(met ? .greenStamp : .redInk)
+                            Image(systemName: met ? "checkmark" : "xmark")
+                                .font(.system(size: 11, weight: .black))
+                                .foregroundColor(met ? .greenStamp : .redInk)
+                        }
+                        .padding(.vertical, 4)
+                        if item.id != vm.items.last?.id {
+                            Divider().background(Color.newsprint)
+                        }
+                    }
+                    
+                    Divider().background(Color.inkBlack.opacity(0.3))
+                    HStack {
+                        Text("TOTAL")
+                            .font(.system(size: 9, weight: .black, design: .monospaced))
+                            .foregroundColor(.fadedInk)
+                        Spacer()
+                        Text(String(format: "$%.2f / $5.00", vm.totalSpent))
+                            .font(.system(size: 14, weight: .black, design: .monospaced))
+                            .foregroundColor(.inkBlack)
+                    }
+                }
+                .padding(18)
+                .background(Color.warmPaper)
+                .overlay(Rectangle().stroke(Color.inkBlack.opacity(0.12), lineWidth: 1))
+                .padding(.horizontal, 20).padding(.top, 24)
+                .opacity(appeared ? 1 : 0)
+                .animation(.easeOut(duration: 0.5).delay(0.5), value: appeared)
+                
+                // Reality check — pull quote style
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(spacing: 0) {
+                        Rectangle().fill(Color.redInk).frame(width: 3)
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("REALITY CHECK")
+                                .font(.system(size: 9, weight: .black, design: .monospaced))
+                                .foregroundColor(.redInk).tracking(2)
+                            Text("This simulation doesn't include the cognitive load of poverty — the relentless mental arithmetic of survival, the shame, the stress, time spent traveling to food banks, or the impact on children who watch you struggle every single day. For 733 million people, this is not a challenge. It's just life.")
+                                .font(.system(size: 13, design: .serif))
+                                .foregroundColor(.fadedInk).lineSpacing(4)
+                        }
+                        .padding(.leading, 14)
+                    }
+                }
+                .padding(.vertical, 16).padding(.trailing, 16).padding(.leading, 0)
+                .background(Color.warmPaper)
+                .padding(.horizontal, 20).padding(.top, 12)
+                .opacity(appeared ? 1 : 0)
+                .animation(.easeOut(duration: 0.5).delay(0.65), value: appeared)
+                
+                Button(action: { Haptics.impact(); onReset() }) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "arrow.counterclockwise")
+                        Text("Try Again")
+                    }
+                    .font(.system(size: 14, weight: .black, design: .monospaced))
+                    .foregroundColor(.warmPaper)
+                    .padding(.horizontal, 36).padding(.vertical, 14)
+                    .background(Color.inkBlack)
+                }
+                .padding(.top, 28).padding(.bottom, 50)
+                .opacity(appeared ? 1 : 0)
+                .animation(.easeOut(duration: 0.5).delay(0.75), value: appeared)
+            }
+        }
+        .onAppear { appeared = true }
+    }
+}
