@@ -1,4 +1,4 @@
-# food-insecurity
+# application
 
 This application was for the Swift Student Challenge '26!
 I want to build something for addressing food insecurity in the Seattle area. 
